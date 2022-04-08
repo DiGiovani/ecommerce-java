@@ -2,9 +2,11 @@ package database;
 
 import java.sql.*;
 
-public class DatabaseConnection {
-    private static void initialization(Connection connection) {
+public class Database {
+    public static void initialization() {
         try {
+            Connection connection = connect();
+
             Statement productsDatabase = connection.createStatement();
             // TABLE POPULATION
             productsDatabase.execute(
@@ -23,11 +25,26 @@ public class DatabaseConnection {
 
     }
 
-    public static void connect() {
+    public static void adicionaProduto() { // Precisamos adicionar a classe Produto como parâmetro
+        try {
+            String name = "", price = "";
+
+            Connection connection = connect();
+            Statement productInsertion = connection.createStatement();
+            productInsertion.execute("INSERT INTO PRODUCT(NAME, PRICE) VALUES (" + name + ", " + price + ")");
+            System.out.println("");
+
+        } catch (SQLException e) {
+        }
+
+    }
+
+    private static Connection connect() {
         // TABLE CREATION
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:database.db")) {
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:sqlite:database.db");
             System.out.println("Database connected! :D");
-            initialization(connection);
+            return connection;
 
         } catch (SQLException e) {
             System.out.println("--------------DATABASE CONNECTION FAILED--------------");
@@ -35,5 +52,6 @@ public class DatabaseConnection {
             System.out.println(e.getMessage());
             System.out.println("------------------------------------------------------");
         }
+        return null;
     }
 }
