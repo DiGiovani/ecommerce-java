@@ -1,57 +1,83 @@
 package database;
 
-import java.sql.*;
+import java.util.*;
+import java.sql.SQLException;
+
+import com.j256.ormlite.dao.*;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.stmt.*;
+import com.j256.ormlite.support.ConnectionSource;
+
+import database.models.*;
 
 public class Database {
     public static void initialization() {
         try {
-            Connection connection = connect();
-
-            Statement productsDatabase = connection.createStatement();
-            // TABLE POPULATION
-            productsDatabase.execute(
-                    "CREATE TABLE IF NOT EXISTS PRODUCT(ID INTEGER PRIMARY KEY, NAME VARCHAR(30), PRICE INTEGER)");
-            productsDatabase
-                    .execute(
-                            "INSERT INTO PRODUCT(NAME, PRICE) VALUES ('Banheira', 250), ('Patinho de Borracha', 5), ('Desentupidor de Pia', 3), ('Carrinho de Controle Remoto', 100), ('Escova de Dentes', 5), ('Casa da Barbie', 1500), ('Batom', 20), ('Ingresso Cinemark', 50), ('Alexa', 250), ('TV DE TUBO 29\" + CONVERSOR HDMI + ANTENA PARABOLICA ANALOGICA', 150)");
-            System.out.println("Database initialized! :D");
-
-        } catch (SQLException e) {
+            Cart.createTable();
+            Client.createTable();
+            Product.createTable();
+            ClientCart.createTable();
+            CartProduct.createTable();
+        } catch (Exception e) {
             System.out.println("--------------DATABASE INITIALIZATION FAILED--------------");
             System.out.println("ERROR MESSAGE: ");
             System.out.println(e.getMessage());
             System.out.println("------------------------------------------------------");
         }
-
     }
 
-    public static void adicionaProduto() { // Precisamos adicionar a classe Produto como parâmetro
-        try {
-            String name = "", price = "";
+    static public List<Product> getProduct(Product product) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db")) {
+            Dao<Product, Integer> productDao = DaoManager.createDao(connectionSource, Product.class);
+            QueryBuilder<Product, Integer> queryBuilder = productDao.queryBuilder();
+            PreparedQuery<Product> preparedQuery = queryBuilder.where().eq(Product.ID_FIELD_NAME, product.getId())
+                    .prepare();
+            List<Product> products = productDao.query(preparedQuery);
 
-            Connection connection = connect();
-            Statement productInsertion = connection.createStatement();
-            productInsertion.execute("INSERT INTO PRODUCT(NAME, PRICE) VALUES (" + name + ", " + price + ")");
-            System.out.println("");
-
-        } catch (SQLException e) {
-        }
-
-    }
-
-    private static Connection connect() {
-        // TABLE CREATION
-        try {
-            Connection connection = DriverManager.getConnection("jdbc:sqlite:database.db");
-            System.out.println("Database connected! :D");
-            return connection;
+            return products;
 
         } catch (SQLException e) {
-            System.out.println("--------------DATABASE CONNECTION FAILED--------------");
-            System.out.println("ERROR MESSAGE: ");
             System.out.println(e.getMessage());
-            System.out.println("------------------------------------------------------");
         }
         return null;
+    }
+
+    static public void addProduct(Product product) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db")) {
+            Dao<Product, Integer> productDao = DaoManager.createDao(connectionSource, Product.class);
+            productDao.createIfNotExists(product);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static public void addClient(Client client) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db")) {
+            Dao<Client, Integer> clientDao = DaoManager.createDao(connectionSource, Client.class);
+            clientDao.createIfNotExists(client);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static public void addCart(Cart client) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db")) {
+            Dao<Cart, Integer> cartDao = DaoManager.createDao(connectionSource, Cart.class);
+            cartDao.createIfNotExists(client);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static public void alterCart(Cart cart, List<Product> products) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db")) {
+            Dao<Cart, Integer> cartDao = DaoManager.createDao(connectionSource, Cart.class);
+            UpdateBuilder<Cart, Integer> updateBuilder = cartDao.updateBuilder();
+            updateBuilder.updateColumnValue("products", products);
+            updateBuilder.where().eq(Cart.ID_FIELD_NAME, cart.getId());
+            updateBuilder.update();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
