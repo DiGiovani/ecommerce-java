@@ -2,15 +2,15 @@ package database.models;
 
 import java.sql.SQLException;
 
-import com.j256.ormlite.field.*;
-import com.j256.ormlite.jdbc.*;
-import com.j256.ormlite.support.*;
-import com.j256.ormlite.table.*;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
 
-@DatabaseTable(tableName = "cart")
-public class Cart {
+public class Order {
     public static final String ID_FIELD_NAME = "id";
-    public static final String CLIENT_FIELD_NAME = "client_id";
+    public static final String CART_ID_FIELD_NAME = "cart_id";
+    public static final String CLIENT_ID_FIELD_NAME = "client_id";
 
     @DatabaseField(generatedId = true)
     private Integer id;
@@ -18,12 +18,24 @@ public class Cart {
     @DatabaseField(foreign = true)
     private Client client;
 
-    public Cart() {
+    @DatabaseField(foreign = true)
+    private Cart cart;
+
+    public Order() {
 
     }
 
-    public Cart(Client client) {
+    public Order(Cart cart, Client client) {
         this.client = client;
+        this.cart = cart;
+    }
+
+    public Cart getCart() {
+        return this.cart;
+    }
+
+    public Integer getId() {
+        return this.id;
     }
 
     static public void createTable() throws Exception {
@@ -36,14 +48,10 @@ public class Cart {
 
     static public void createTable(String database) throws Exception {
         try (ConnectionSource connectionSource = new JdbcConnectionSource(database);) {
-            TableUtils.createTableIfNotExists(connectionSource, Cart.class);
+            TableUtils.createTableIfNotExists(connectionSource, Order.class);
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    public Integer getId() {
-        return this.id;
     }
 }

@@ -34,11 +34,28 @@ public class Product {
     }
 
     public Integer getId() {
-        return id;
+        return this.id;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public int getPrice() {
+        return this.price;
     }
 
     static public void createTable() throws Exception {
-        try (ConnectionSource connectionSource = new JdbcConnectionSource("jdbc:sqlite:database.db");) {
+        try {
+            createTable("jdbc:sqlite:database.db");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    static public void createTable(String database) throws Exception {
+        try (ConnectionSource connectionSource = new JdbcConnectionSource(database);) {
             TableUtils.createTableIfNotExists(connectionSource, Product.class);
 
         } catch (SQLException e) {
