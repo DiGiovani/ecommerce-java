@@ -207,6 +207,10 @@ public class Database {
 
     static public void addClient(Client client) throws Exception {
         try (ConnectionSource connectionSource = new JdbcConnectionSource(source)) {
+            Client alreadyExistsVerification = getClient(client.getEmail());
+            if (alreadyExistsVerification != null) {
+                throw new Exception("Already Exists");
+            }
             Dao<Client, Integer> clientDao = DaoManager.createDao(connectionSource, Client.class);
             clientDao.createIfNotExists(client);
         } catch (SQLException e) {

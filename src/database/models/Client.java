@@ -97,4 +97,8 @@ public class Client {
     public String getAddress() {
         return this.address;
     }
+
+    public String getEmail() {
+        return this.email;
+    }
 }
