@@ -188,8 +188,10 @@ public class Database {
             PreparedQuery<Client> preparedQuery = queryBuilder.where().eq("email", email).prepare();
             List<Client> clients = clientDao.query(preparedQuery);
 
-            return clients.get(0);
-
+            if (clients.size() > 0) {
+                return clients.get(0);
+            }
+            return null;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }

@@ -87,7 +87,7 @@ public class Main {
             if (currentClient == null) {
                 System.out.println("Você precisa estar logado para acessar essa parte.");
                 System.out.println("\n======CARRINHO DE COMPRAS======");
-                System.out.println("[1] Área do Cliente" + "\n[2] Menu Inicial" + "\n[3] Sair");
+                System.out.println("[1] Area do Cliente" + "\n[2] Menu Inicial" + "\n[3] Sair");
                 int op = sc1.nextInt();
                 switch (op) {
                     case 1:
